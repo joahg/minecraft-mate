@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" shape-rendering="crispEdges">
+  <!-- Sky background -->
+  <rect width="512" height="512" fill="#6ea5ff"/>
+
+  <!-- Grass block style frame -->
+  <rect x="32" y="32" width="448" height="448" fill="#5a3a1a"/>
+  <rect x="32" y="32" width="448" height="64" fill="#6cae3b"/>
+  <rect x="32" y="32" width="448" height="16" fill="#82c44a"/>
+
+  <!-- 4x4 chessboard pattern (grass + dirt) -->
+  <g>
+    <!-- row 1 -->
+    <rect x="64"  y="128" width="96" height="96" fill="#6cae3b"/>
+    <rect x="160" y="128" width="96" height="96" fill="#8b5a2b"/>
+    <rect x="256" y="128" width="96" height="96" fill="#6cae3b"/>
+    <rect x="352" y="128" width="96" height="96" fill="#8b5a2b"/>
+    <!-- row 2 -->
+    <rect x="64"  y="224" width="96" height="96" fill="#8b5a2b"/>
+    <rect x="160" y="224" width="96" height="96" fill="#6cae3b"/>
+    <rect x="256" y="224" width="96" height="96" fill="#8b5a2b"/>
+    <rect x="352" y="224" width="96" height="96" fill="#6cae3b"/>
+    <!-- row 3 -->
+    <rect x="64"  y="320" width="96" height="96" fill="#6cae3b"/>
+    <rect x="160" y="320" width="96" height="96" fill="#8b5a2b"/>
+    <rect x="256" y="320" width="96" height="96" fill="#6cae3b"/>
+    <rect x="352" y="320" width="96" height="96" fill="#8b5a2b"/>
+    <!-- row 4 -->
+    <rect x="64"  y="416" width="96" height="48" fill="#8b5a2b"/>
+    <rect x="160" y="416" width="96" height="48" fill="#6cae3b"/>
+    <rect x="256" y="416" width="96" height="48" fill="#8b5a2b"/>
+    <rect x="352" y="416" width="96" height="48" fill="#6cae3b"/>
+  </g>
+
+  <!-- Pixel-style King (white) on a center square -->
+  <g fill="#f8f0d8" stroke="#000" stroke-width="2">
+    <!-- crown -->
+    <rect x="208" y="148" width="16" height="16"/>
+    <rect x="240" y="148" width="16" height="16"/>
+    <rect x="272" y="148" width="16" height="16"/>
+    <rect x="304" y="148" width="16" height="16"/>
+    <rect x="208" y="164" width="112" height="16"/>
+    <!-- body -->
+    <rect x="224" y="180" width="80" height="48"/>
+    <!-- base -->
+    <rect x="208" y="228" width="112" height="20"/>
+  </g>
+
+  <!-- Pixel-style Pawn (black) -->
+  <g fill="#1a1a1a" stroke="#ddd" stroke-width="2">
+    <rect x="232" y="280" width="48" height="20"/>
+    <rect x="224" y="300" width="64" height="48"/>
+    <rect x="208" y="348" width="96" height="20"/>
+  </g>
+</svg>

@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A Minecraft-themed chess checkmate practice app. Solve mate-in-1 puzzles in a blocky, pixelated world.">
+<meta name="theme-color" content="#6ea5ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MC Mate">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Minecraft Mate</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; image-rendering: pixelated; image-rendering: -moz-crisp-edges; }
+  html, body {
+    height: 100%;
+    font-family: 'VT323', monospace;
+    color: #fff;
+    overflow: auto;
+  }
+  body {
+    min-height: 100vh;
+    background-color: #6ea5ff;
+    background-image:
+      radial-gradient(circle at 10% 20%, #fff 0 8px, transparent 9px),
+      radial-gradient(circle at 12% 22%, #fff 0 6px, transparent 7px),
+      radial-gradient(circle at 18% 18%, #fff 0 7px, transparent 8px),
+      radial-gradient(circle at 80% 30%, #fff 0 8px, transparent 9px),
+      radial-gradient(circle at 84% 32%, #fff 0 7px, transparent 8px),
+      radial-gradient(circle at 60% 70%, #fff 0 10px, transparent 11px),
+      radial-gradient(circle at 64% 72%, #fff 0 6px, transparent 7px),
+      linear-gradient(#7fb6ff, #4a8be0);
+    background-size: 600px 400px, 600px 400px, 600px 400px, 600px 400px, 600px 400px, 600px 400px, 600px 400px, 100% 100%;
+    background-repeat: repeat;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 28px;
+    color: #fff;
+    text-shadow:
+      2px 0 0 #3a3a3a, 4px 0 0 #3a3a3a,
+      0 2px 0 #3a3a3a, 0 4px 0 #3a3a3a,
+      2px 2px 0 #3a3a3a, 4px 4px 0 #3a3a3a,
+      6px 6px 0 #1a1a1a;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  .main {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .panel {
+    background: #c6c6c6;
+    padding: 8px;
+    box-shadow:
+      inset 2px 2px 0 #fff,
+      inset -2px -2px 0 #555,
+      0 0 0 2px #000;
+    image-rendering: pixelated;
+  }
+  .panel-inner {
+    background: #8b8b8b;
+    padding: 14px;
+    box-shadow:
+      inset -2px -2px 0 #fff,
+      inset 2px 2px 0 #373737;
+  }
+
+  .board-wrap {
+    position: relative;
+  }
+
+  .board-container {
+    display: grid;
+    grid-template-columns: 24px repeat(8, 70px) 24px;
+    grid-template-rows: 24px repeat(8, 70px) 24px;
+    background: #5a3a1a;
+    padding: 0;
+    box-shadow:
+      inset 2px 2px 0 #8a5a2a,
+      inset -2px -2px 0 #2a1a0a,
+      0 0 0 4px #000,
+      0 0 0 6px #444,
+      8px 8px 0 rgba(0,0,0,0.4);
+  }
+
+  .label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #ffe7a8;
+    text-shadow: 1px 1px 0 #000;
+  }
+
+  .square {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .square.light {
+    background-color: #6cae3b;
+    background-image:
+      radial-gradient(circle at 20% 30%, #4f8a25 0 3px, transparent 4px),
+      radial-gradient(circle at 70% 60%, #4f8a25 0 2px, transparent 3px),
+      radial-gradient(circle at 40% 80%, #5a9c2e 0 3px, transparent 4px),
+      radial-gradient(circle at 85% 20%, #82c44a 0 2px, transparent 3px),
+      radial-gradient(circle at 10% 70%, #82c44a 0 2px, transparent 3px),
+      radial-gradient(circle at 55% 40%, #5a9c2e 0 2px, transparent 3px);
+    box-shadow:
+      inset 0 4px 0 #82c44a,
+      inset 0 -4px 0 #3e6b1c,
+      inset 4px 0 0 rgba(130,196,74,0.4),
+      inset -4px 0 0 rgba(62,107,28,0.4);
+  }
+
+  .square.dark {
+    background-color: #8b5a2b;
+    background-image:
+      radial-gradient(circle at 25% 30%, #6b4220 0 3px, transparent 4px),
+      radial-gradient(circle at 70% 50%, #6b4220 0 2px, transparent 3px),
+      radial-gradient(circle at 50% 80%, #a06d3a 0 3px, transparent 4px),
+      radial-gradient(circle at 85% 25%, #6b4220 0 2px, transparent 3px),
+      radial-gradient(circle at 15% 65%, #a06d3a 0 2px, transparent 3px),
+      radial-gradient(circle at 60% 15%, #6b4220 0 2px, transparent 3px);
+    box-shadow:
+      inset 0 4px 0 #a06d3a,
+      inset 0 -4px 0 #5e3a1c,
+      inset 4px 0 0 rgba(160,109,58,0.4),
+      inset -4px 0 0 rgba(94,58,28,0.4);
+  }
+
+  .piece {
+    font-family: 'Press Start 2P', 'VT323', monospace;
+    font-size: 50px;
+    line-height: 1;
+    pointer-events: none;
+    z-index: 2;
+    position: relative;
+  }
+  .piece.white {
+    color: #f8f0d8;
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+      0 -2px 0 #000, 0 2px 0 #000, -2px 0 0 #000, 2px 0 0 #000,
+      3px 3px 0 #555, 4px 4px 0 #333;
+  }
+  .piece.black {
+    color: #1a1a1a;
+    text-shadow:
+      -2px -2px 0 #ddd, 2px -2px 0 #ddd, -2px 2px 0 #ddd, 2px 2px 0 #ddd,
+      0 -2px 0 #ddd, 0 2px 0 #ddd, -2px 0 0 #ddd, 2px 0 0 #ddd,
+      3px 3px 0 #444, 4px 4px 0 #222;
+  }
+
+  .square.selected::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255, 215, 0, 0.45);
+    box-shadow: inset 0 0 0 4px rgba(255,200,0,0.9);
+    z-index: 1;
+  }
+  .square.legal::after {
+    content: '';
+    position: absolute;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.35);
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,0.55);
+    z-index: 1;
+  }
+  .square.legal.capture::after {
+    width: 60px; height: 60px;
+    background: transparent;
+    box-shadow: inset 0 0 0 5px rgba(255,60,60,0.7);
+    border-radius: 6px;
+  }
+  .square.lastmove::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(255, 230, 100, 0.28);
+    z-index: 1;
+  }
+  .square.hint::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(80, 220, 255, 0.45);
+    box-shadow: inset 0 0 0 4px rgba(0,180,255,0.9);
+    z-index: 1;
+    animation: pulse 0.8s infinite alternate;
+  }
+  @keyframes pulse {
+    from { opacity: 0.6; }
+    to { opacity: 1; }
+  }
+  .square.check::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(circle, rgba(255,0,0,0.6), rgba(255,0,0,0.2));
+    z-index: 1;
+  }
+
+  .info {
+    width: 340px;
+    color: #1a1a1a;
+  }
+  .info h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #ffd96b;
+    text-shadow: 2px 2px 0 #000, 3px 3px 0 #5a3a00;
+    margin-bottom: 4px;
+    line-height: 1.4;
+    letter-spacing: 1px;
+  }
+  .info .puzzle-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 12px;
+    opacity: 0.85;
+  }
+  .info .row {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin: 6px 0;
+    line-height: 1.6;
+  }
+  .info .label-tag {
+    color: #ffd96b;
+  }
+
+  .status {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 10px;
+    margin: 10px 0;
+    background: #2a2a2a;
+    color: #fff;
+    box-shadow: inset 2px 2px 0 #000, inset -2px -2px 0 #555;
+    min-height: 40px;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .status.good { color: #6cff6c; }
+  .status.bad  { color: #ff7070; }
+
+  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .mc-btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 12px 6px;
+    background: #aaaaaa;
+    color: #fff;
+    text-shadow: 2px 2px 0 #3a3a3a;
+    border: none;
+    cursor: pointer;
+    box-shadow:
+      inset 2px 2px 0 #d4d4d4,
+      inset -2px -2px 0 #555,
+      0 0 0 2px #000;
+    transition: none;
+  }
+  .mc-btn:hover { background: #bcbcbc; }
+  .mc-btn:active {
+    box-shadow:
+      inset -2px -2px 0 #d4d4d4,
+      inset 2px 2px 0 #555,
+      0 0 0 2px #000;
+    transform: translate(1px, 1px);
+  }
+  .mc-btn.primary { background: #4a8a3a; }
+  .mc-btn.primary:hover { background: #5aa047; }
+  .mc-btn.warn { background: #aa5a3a; }
+  .mc-btn.warn:hover { background: #c46c47; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+  }
+  .overlay.show { display: flex; animation: fadein 0.2s; }
+  @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+  .overlay-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 56px;
+    color: #ffd700;
+    text-shadow:
+      4px 0 0 #000, -4px 0 0 #000, 0 4px 0 #000, 0 -4px 0 #000,
+      4px 4px 0 #000, -4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000,
+      8px 8px 0 #5a3a00, 12px 12px 0 #2a1a00;
+    animation: pop 0.4s cubic-bezier(.5,1.8,.5,1);
+    letter-spacing: 4px;
+  }
+  @keyframes pop {
+    0% { transform: scale(0.3) rotate(-10deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .overlay-sub {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000;
+    margin-top: 20px;
+    letter-spacing: 2px;
+  }
+  .overlay-content { text-align: center; }
+
+  #errorBox {
+    display: none;
+    background: #aa2222;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 12px;
+    margin: 10px;
+    max-width: 800px;
+    line-height: 1.6;
+    box-shadow: inset 2px 2px 0 #ff6666, inset -2px -2px 0 #550000, 0 0 0 2px #000;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .hint-desc {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: #ffe7a8;
+    text-shadow: 1px 1px 0 #000;
+    margin-top: 8px;
+    line-height: 1.3;
+    min-height: 22px;
+    padding: 6px 8px;
+    background: rgba(0,0,0,0.25);
+    box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #555;
+  }
+
+  .footer {
+    margin-top: 22px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    opacity: 0.8;
+    text-align: center;
+    line-height: 1.8;
+  }
+  .footer a { color: #ffd96b; text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 900px) {
+    .board-container {
+      grid-template-columns: 20px repeat(8, 44px) 20px;
+      grid-template-rows: 20px repeat(8, 44px) 20px;
+    }
+    .square { width: 44px; height: 44px; }
+    .piece { font-size: 32px; }
+    .square.legal::after { width: 14px; height: 14px; }
+    .square.legal.capture::after { width: 38px; height: 38px; }
+    .info { width: 280px; }
+    .overlay-text { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>⛏ MINECRAFT MATE ⛏</h1>
+
+<div id="errorBox"></div>
+
+<div class="main">
+  <div class="panel">
+    <div class="panel-inner">
+      <div class="board-wrap">
+        <div id="board" class="board-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel info">
+    <div class="panel-inner">
+      <h2 id="puzzleName">PUZZLE NAME</h2>
+      <div class="puzzle-num" id="puzzleNum">PUZZLE 1 OF 1</div>
+      <div class="row"><span class="label-tag">GOAL:</span> <span id="goal">Mate in 1</span></div>
+      <div class="row"><span class="label-tag">TURN:</span> <span id="turn">White to move</span></div>
+      <div class="row"><span class="label-tag">SCORE:</span> <span id="score">0 / 0</span></div>
+      <div id="status" class="status">Click a piece to begin!</div>
+      <div class="hint-desc" id="hintDesc">&nbsp;</div>
+      <div class="btns">
+        <button class="mc-btn" id="hintBtn">HINT</button>
+        <button class="mc-btn warn" id="solBtn">SOLUTION</button>
+        <button class="mc-btn" id="resetBtn">RESET</button>
+        <button class="mc-btn primary" id="nextBtn">NEXT ►</button>
+      </div>
+      <div class="row" style="margin-top:14px; font-size:8px; line-height:1.7; opacity:0.85;">
+        Click a piece, then click a target square. Find the checkmate!
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay">
+  <div class="overlay-content">
+    <div class="overlay-text">CHECKMATE!</div>
+    <div class="overlay-sub" id="overlaySub">+1 DIAMOND</div>
+  </div>
+</div>
+
+<div class="footer">
+  ⛏ Built with vanilla JS ⛏ Installable PWA ⛏
+  <br>
+  <a href="https://github.com/joahg/minecraft-mate" target="_blank" rel="noopener">View on GitHub</a>
+</div>
+
+<script>
+// Register service worker for PWA / offline support.
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js').catch((err) => {
+      console.warn('[MinecraftMate] SW registration failed:', err);
+    });
+  });
+}
+</script>
+
+<script>
+console.log('[MinecraftMate] script start');
+
+function showError(msg) {
+  const box = document.getElementById('errorBox');
+  if (box) {
+    box.style.display = 'block';
+    box.textContent = 'ERROR: ' + msg;
+  }
+  console.error('[MinecraftMate]', msg);
+}
+
+window.addEventListener('error', function(e) {
+  showError(e.message + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
+});
+
+try {
+  'use strict';
+
+  // ============================================================
+  // Embedded Chess Engine
+  // ============================================================
+  const FILES = ['a','b','c','d','e','f','g','h'];
+
+  function sqToIdx(sq) {
+    const f = sq.charCodeAt(0) - 97;
+    const r = parseInt(sq[1], 10) - 1;
+    return r * 8 + f;
+  }
+  function idxToSq(idx) {
+    const f = idx % 8, r = Math.floor(idx / 8);
+    return FILES[f] + (r + 1);
+  }
+
+  function parseFEN(fen) {
+    const parts = fen.trim().split(/\s+/);
+    const placement = parts[0];
+    const turn = parts[1] || 'w';
+    const board = new Array(64).fill(null);
+    const ranks = placement.split('/');
+    if (ranks.length !== 8) throw new Error('Bad FEN ranks: ' + placement);
+    for (let i = 0; i < 8; i++) {
+      const rank = 7 - i;
+      let file = 0;
+      const row = ranks[i];
+      for (let c = 0; c < row.length; c++) {
+        const ch = row[c];
+        if (/[1-8]/.test(ch)) {
+          file += parseInt(ch, 10);
+        } else {
+          const color = ch === ch.toUpperCase() ? 'w' : 'b';
+          const type = ch.toLowerCase();
+          board[rank * 8 + file] = { type, color };
+          file++;
+        }
+      }
+    }
+    return { board, turn };
+  }
+
+  function cloneBoard(board) {
+    const b = new Array(64);
+    for (let i = 0; i < 64; i++) b[i] = board[i] ? { type: board[i].type, color: board[i].color } : null;
+    return b;
+  }
+
+  function findKing(board, color) {
+    for (let i = 0; i < 64; i++) {
+      const p = board[i];
+      if (p && p.type === 'k' && p.color === color) return i;
+    }
+    return -1;
+  }
+
+  function pseudoMoves(board, idx) {
+    const piece = board[idx];
+    if (!piece) return [];
+    const targets = [];
+    const f = idx % 8, r = Math.floor(idx / 8);
+    const c = piece.color;
+    const opp = c === 'w' ? 'b' : 'w';
+
+    function add(tf, tr) {
+      if (tf < 0 || tf > 7 || tr < 0 || tr > 7) return false;
+      const ti = tr * 8 + tf;
+      const t = board[ti];
+      if (!t) { targets.push(ti); return true; }
+      if (t.color === opp) targets.push(ti);
+      return false;
+    }
+    function ray(df, dr) {
+      let tf = f + df, tr = r + dr;
+      while (tf >= 0 && tf <= 7 && tr >= 0 && tr <= 7) {
+        const ti = tr * 8 + tf;
+        const t = board[ti];
+        if (!t) targets.push(ti);
+        else { if (t.color === opp) targets.push(ti); break; }
+        tf += df; tr += dr;
+      }
+    }
+
+    switch (piece.type) {
+      case 'p': {
+        const dir = c === 'w' ? 1 : -1;
+        const startRank = c === 'w' ? 1 : 6;
+        const oneR = r + dir;
+        if (oneR >= 0 && oneR <= 7 && !board[oneR * 8 + f]) {
+          targets.push(oneR * 8 + f);
+          if (r === startRank) {
+            const twoR = r + 2 * dir;
+            if (!board[twoR * 8 + f]) targets.push(twoR * 8 + f);
+          }
+        }
+        for (const df of [-1, 1]) {
+          const tf = f + df, tr = r + dir;
+          if (tf < 0 || tf > 7 || tr < 0 || tr > 7) continue;
+          const ti = tr * 8 + tf;
+          const t = board[ti];
+          if (t && t.color === opp) targets.push(ti);
+        }
+        break;
+      }
+      case 'n': {
+        const deltas = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
+        for (const [df, dr] of deltas) add(f + df, r + dr);
+        break;
+      }
+      case 'b':
+        ray(1,1); ray(1,-1); ray(-1,1); ray(-1,-1);
+        break;
+      case 'r':
+        ray(1,0); ray(-1,0); ray(0,1); ray(0,-1);
+        break;
+      case 'q':
+        ray(1,1); ray(1,-1); ray(-1,1); ray(-1,-1);
+        ray(1,0); ray(-1,0); ray(0,1); ray(0,-1);
+        break;
+      case 'k': {
+        for (let df = -1; df <= 1; df++) for (let dr = -1; dr <= 1; dr++) {
+          if (df === 0 && dr === 0) continue;
+          add(f + df, r + dr);
+        }
+        break;
+      }
+    }
+    return targets;
+  }
+
+  function isAttacked(board, idx, byColor) {
+    const tf = idx % 8, tr = Math.floor(idx / 8);
+    const pdir = byColor === 'w' ? -1 : 1;
+    for (const df of [-1, 1]) {
+      const f = tf + df, r = tr + pdir;
+      if (f < 0 || f > 7 || r < 0 || r > 7) continue;
+      const p = board[r * 8 + f];
+      if (p && p.color === byColor && p.type === 'p') return true;
+    }
+    const nDeltas = [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
+    for (const [df, dr] of nDeltas) {
+      const f = tf + df, r = tr + dr;
+      if (f < 0 || f > 7 || r < 0 || r > 7) continue;
+      const p = board[r * 8 + f];
+      if (p && p.color === byColor && p.type === 'n') return true;
+    }
+    for (let df = -1; df <= 1; df++) for (let dr = -1; dr <= 1; dr++) {
+      if (df === 0 && dr === 0) continue;
+      const f = tf + df, r = tr + dr;
+      if (f < 0 || f > 7 || r < 0 || r > 7) continue;
+      const p = board[r * 8 + f];
+      if (p && p.color === byColor && p.type === 'k') return true;
+    }
+    const orth = [[1,0],[-1,0],[0,1],[0,-1]];
+    for (const [df, dr] of orth) {
+      let f = tf + df, r = tr + dr;
+      while (f >= 0 && f <= 7 && r >= 0 && r <= 7) {
+        const p = board[r * 8 + f];
+        if (p) {
+          if (p.color === byColor && (p.type === 'r' || p.type === 'q')) return true;
+          break;
+        }
+        f += df; r += dr;
+      }
+    }
+    const diag = [[1,1],[1,-1],[-1,1],[-1,-1]];
+    for (const [df, dr] of diag) {
+      let f = tf + df, r = tr + dr;
+      while (f >= 0 && f <= 7 && r >= 0 && r <= 7) {
+        const p = board[r * 8 + f];
+        if (p) {
+          if (p.color === byColor && (p.type === 'b' || p.type === 'q')) return true;
+          break;
+        }
+        f += df; r += dr;
+      }
+    }
+    return false;
+  }
+
+  function isInCheck(board, color) {
+    const k = findKing(board, color);
+    if (k < 0) return false;
+    const opp = color === 'w' ? 'b' : 'w';
+    return isAttacked(board, k, opp);
+  }
+
+  function applyMove(board, from, to) {
+    const nb = cloneBoard(board);
+    const piece = nb[from];
+    if (!piece) return null;
+    nb[to] = { type: piece.type, color: piece.color };
+    nb[from] = null;
+    if (piece.type === 'p') {
+      const tr = Math.floor(to / 8);
+      if ((piece.color === 'w' && tr === 7) || (piece.color === 'b' && tr === 0)) {
+        nb[to].type = 'q';
+      }
+    }
+    return nb;
+  }
+
+  function legalMoves(board, fromIdx, sideToMove) {
+    const piece = board[fromIdx];
+    if (!piece || piece.color !== sideToMove) return [];
+    const pseudo = pseudoMoves(board, fromIdx);
+    const legal = [];
+    for (const to of pseudo) {
+      const nb = applyMove(board, fromIdx, to);
+      if (!isInCheck(nb, sideToMove)) legal.push(to);
+    }
+    return legal;
+  }
+
+  function allLegalMoves(board, sideToMove) {
+    const moves = [];
+    for (let i = 0; i < 64; i++) {
+      const p = board[i];
+      if (!p || p.color !== sideToMove) continue;
+      const tos = legalMoves(board, i, sideToMove);
+      for (const t of tos) moves.push({ from: i, to: t });
+    }
+    return moves;
+  }
+
+  function isCheckmate(board, sideToMove) {
+    if (!isInCheck(board, sideToMove)) return false;
+    return allLegalMoves(board, sideToMove).length === 0;
+  }
+
+  function moveToText(board, from, to) {
+    const piece = board[from];
+    if (!piece) return '';
+    const letters = { p:'', n:'N', b:'B', r:'R', q:'Q', k:'K' };
+    const captured = board[to];
+    const prefix = letters[piece.type];
+    const cap = captured ? 'x' : '';
+    const fromSq = idxToSq(from);
+    const toSq = idxToSq(to);
+    if (piece.type === 'p') {
+      return (cap ? fromSq[0] + 'x' : '') + toSq;
+    }
+    return prefix + cap + toSq;
+  }
+
+  // ============================================================
+  // Puzzles — each carefully verified mate-in-1
+  // ============================================================
+  const PUZZLES = [
+    {
+      name: "Back Rank Mate",
+      fen: "6k1/5ppp/8/8/8/8/8/R6K w - - 0 1",
+      from: "a1", to: "a8",
+      hint: "The king is trapped behind its own pawns on the 8th rank."
+    },
+    {
+      name: "Back Rank (Rook)",
+      fen: "6k1/5ppp/8/8/8/8/8/3R3K w - - 0 1",
+      from: "d1", to: "d8",
+      hint: "Same back-rank idea — slide the rook to the 8th rank."
+    },
+    {
+      name: "Queen Edge Mate",
+      fen: "7k/5Q2/6K1/8/8/8/8/8 w - - 0 1",
+      from: "f7", to: "g7",
+      hint: "Queen supported by its king delivers a corner mate."
+    },
+    {
+      name: "Two Rooks Ladder",
+      fen: "7k/R7/1R6/8/8/8/8/7K w - - 0 1",
+      from: "b6", to: "b8",
+      hint: "Climb the ladder — one rook cuts off, the other mates."
+    },
+    {
+      name: "Rook Edge Mate",
+      fen: "4k3/8/4K3/8/8/8/8/4R3 w - - 0 1",
+      from: "e1", to: "e8",
+      hint: "King opposition forces the rook mate down the file."
+    },
+    {
+      name: "Smothered Mate",
+      fen: "6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1",
+      from: "g5", to: "f7",
+      hint: "Knight delivers mate — king is smothered by its own pieces."
+    },
+    {
+      name: "Arabian Mate",
+      fen: "7k/R7/5N2/8/8/8/8/7K w - - 0 1",
+      from: "a7", to: "h7",
+      hint: "Rook + knight team up in the corner — knight guards the rook."
+    },
+    {
+      name: "Damiano's Mate",
+      fen: "7k/6p1/6P1/8/8/8/8/K6Q w - - 0 1",
+      from: "h1", to: "h7",
+      hint: "Pawn on g6 supports the queen for the killing blow on h7."
+    },
+    {
+      name: "Epaulette Mate",
+      fen: "3rkr2/8/3P4/8/8/8/8/4Q2K w - - 0 1",
+      from: "e1", to: "e7",
+      hint: "King's own rooks block its escape — queen delivers a protected mate."
+    },
+    {
+      name: "Swallow's Tail Mate",
+      fen: "4k3/3p1p2/3P4/8/8/8/8/4Q2K w - - 0 1",
+      from: "e1", to: "e7",
+      hint: "Pawns on d7 and f7 trap the king — queen mates with support."
+    },
+    {
+      name: "Suffocation Mate",
+      fen: "6bk/6pp/8/6N1/8/8/8/7K w - - 0 1",
+      from: "g5", to: "f7",
+      hint: "Knight mate — king is suffocated by its own bishop and pawns."
+    },
+    {
+      name: "Fool's Mate",
+      fen: "rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2",
+      from: "d8", to: "h4",
+      hint: "The classic 2-move blunder — queen swoops down the diagonal."
+    },
+    {
+      name: "Scholar's Mate",
+      fen: "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 4",
+      from: "h5", to: "f7",
+      hint: "Queen + bishop team up on f7 — the weakest square in the opening."
+    },
+    {
+      name: "Black to Mate",
+      fen: "8/8/8/8/8/1q6/2k5/K7 b - - 0 1",
+      from: "b3", to: "b2",
+      hint: "Black's queen delivers a supported mate next to the white king."
+    },
+    {
+      name: "Promotion Mate",
+      fen: "7k/5KP1/8/8/8/8/8/8 w - - 0 1",
+      from: "g7", to: "g8",
+      hint: "Promote the pawn — the new queen mates with the king's help."
+    },
+    {
+      name: "Pawn Mate",
+      fen: "k7/2K5/1P6/8/8/8/8/8 w - - 0 1",
+      from: "b6", to: "b7",
+      hint: "A humble pawn push delivers the killing blow!"
+    },
+    {
+      name: "Queen Backrank Sweep",
+      fen: "7k/8/6K1/8/8/8/8/Q7 w - - 0 1",
+      from: "a1", to: "a8",
+      hint: "Queen slides to the back rank — king blocks all escape squares."
+    }
+  ];
+
+  // ============================================================
+  // Validate every puzzle
+  // ============================================================
+  const VALID_PUZZLES = [];
+  for (const p of PUZZLES) {
+    try {
+      const { board, turn } = parseFEN(p.fen);
+      const fromIdx = sqToIdx(p.from);
+      const toIdx = sqToIdx(p.to);
+      const piece = board[fromIdx];
+      if (!piece) { console.warn('No piece on from-square for', p.name); continue; }
+      if (piece.color !== turn) { console.warn('Wrong color piece for', p.name); continue; }
+      const legal = legalMoves(board, fromIdx, turn);
+      if (legal.indexOf(toIdx) === -1) { console.warn('Stored move not legal for', p.name); continue; }
+      const nb = applyMove(board, fromIdx, toIdx);
+      const opp = turn === 'w' ? 'b' : 'w';
+      if (!isCheckmate(nb, opp)) { console.warn('Not checkmate for', p.name); continue; }
+      if (isInCheck(board, opp)) { console.warn('Illegal position for', p.name); continue; }
+      VALID_PUZZLES.push({ name: p.name, fen: p.fen, from: fromIdx, to: toIdx, hint: p.hint });
+    } catch (e) {
+      console.warn('Bad puzzle:', p.name, e);
+    }
+  }
+
+  console.log('[MinecraftMate] validated', VALID_PUZZLES.length, 'of', PUZZLES.length, 'puzzles');
+
+  if (VALID_PUZZLES.length === 0) {
+    showError('No valid puzzles loaded!');
+  }
+
+  // Shuffle
+  for (let i = VALID_PUZZLES.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = VALID_PUZZLES[i];
+    VALID_PUZZLES[i] = VALID_PUZZLES[j];
+    VALID_PUZZLES[j] = tmp;
+  }
+
+  // ============================================================
+  // Sound
+  // ============================================================
+  let audioCtx = null;
+  function tone(freq=440, dur=0.06, type='square', vol=0.08) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = freq;
+      g.gain.value = vol;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      o.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+  }
+
+  // ============================================================
+  // UI State
+  // ============================================================
+  let board = null;
+  let turn = 'w';
+  let currentPuzzle = 0;
+  let solved = 0, attempted = 0;
+  let selected = -1;
+  let legalTargets = [];
+  let lastMove = null;
+  let solvedThisAttempt = false;
+  let hintIdx = -1;
+
+  const PIECE_GLYPHS = {
+    'wk': '♔', 'wq': '♕', 'wr': '♖', 'wb': '♗', 'wn': '♘', 'wp': '♙',
+    'bk': '♚', 'bq': '♛', 'br': '♜', 'bb': '♝', 'bn': '♞', 'bp': '♟'
+  };
+
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('status');
+  const nameEl = document.getElementById('puzzleName');
+  const numEl = document.getElementById('puzzleNum');
+  const turnEl = document.getElementById('turn');
+  const scoreEl = document.getElementById('score');
+  const goalEl = document.getElementById('goal');
+  const hintDescEl = document.getElementById('hintDesc');
+  const overlay = document.getElementById('overlay');
+  const overlaySub = document.getElementById('overlaySub');
+
+  function setStatus(msg, cls='') {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  function loadPuzzle(idx) {
+    currentPuzzle = idx;
+    const p = VALID_PUZZLES[idx];
+    const parsed = parseFEN(p.fen);
+    board = parsed.board;
+    turn = parsed.turn;
+    selected = -1;
+    legalTargets = [];
+    lastMove = null;
+    solvedThisAttempt = false;
+    hintIdx = -1;
+    nameEl.textContent = p.name.toUpperCase();
+    numEl.textContent = `PUZZLE ${idx+1} OF ${VALID_PUZZLES.length}`;
+    const turnName = turn === 'w' ? 'White' : 'Black';
+    turnEl.textContent = `${turnName} to move`;
+    goalEl.textContent = `Mate in 1`;
+    hintDescEl.innerHTML = '&nbsp;';
+    setStatus(`${turnName} to move and mate in 1!`);
+    render();
+  }
+
+  function makeLabel(text) {
+    const d = document.createElement('div');
+    d.className = 'label';
+    d.textContent = text;
+    return d;
+  }
+
+  function render() {
+    boardEl.innerHTML = '';
+    boardEl.appendChild(makeLabel(''));
+    for (let f = 0; f < 8; f++) boardEl.appendChild(makeLabel(FILES[f]));
+    boardEl.appendChild(makeLabel(''));
+
+    const inCheck = board ? isInCheck(board, turn) : false;
+
+    for (let r = 7; r >= 0; r--) {
+      boardEl.appendChild(makeLabel(String(r+1)));
+      for (let f = 0; f < 8; f++) {
+        const idx = r * 8 + f;
+        const isLight = (f + r) % 2 === 1;
+        const div = document.createElement('div');
+        div.className = 'square ' + (isLight ? 'light' : 'dark');
+        div.dataset.idx = String(idx);
+
+        if (selected === idx) div.classList.add('selected');
+        if (legalTargets.indexOf(idx) !== -1) {
+          div.classList.add('legal');
+          if (board[idx]) div.classList.add('capture');
+        }
+        if (lastMove && (lastMove.from === idx || lastMove.to === idx)) div.classList.add('lastmove');
+        if (hintIdx === idx) div.classList.add('hint');
+
+        const piece = board ? board[idx] : null;
+        if (piece) {
+          const span = document.createElement('span');
+          span.className = 'piece ' + (piece.color === 'w' ? 'white' : 'black');
+          span.textContent = PIECE_GLYPHS[piece.color + piece.type];
+          div.appendChild(span);
+          if (inCheck && piece.type === 'k' && piece.color === turn) {
+            div.classList.add('check');
+          }
+        }
+
+        div.addEventListener('click', () => onSquareClick(idx));
+        boardEl.appendChild(div);
+      }
+      boardEl.appendChild(makeLabel(String(r+1)));
+    }
+
+    boardEl.appendChild(makeLabel(''));
+    for (let f = 0; f < 8; f++) boardEl.appendChild(makeLabel(FILES[f]));
+    boardEl.appendChild(makeLabel(''));
+
+    scoreEl.textContent = `${solved} / ${attempted}`;
+  }
+
+  function onSquareClick(idx) {
+    if (solvedThisAttempt) return;
+    hintIdx = -1;
+
+    const piece = board[idx];
+
+    if (selected === -1) {
+      if (piece && piece.color === turn) {
+        selected = idx;
+        legalTargets = legalMoves(board, idx, turn);
+        tone(600, 0.04);
+        render();
+      }
+      return;
+    }
+
+    if (selected === idx) {
+      selected = -1;
+      legalTargets = [];
+      render();
+      return;
+    }
+
+    if (piece && piece.color === turn) {
+      selected = idx;
+      legalTargets = legalMoves(board, idx, turn);
+      tone(600, 0.04);
+      render();
+      return;
+    }
+
+    tryMove(selected, idx);
+  }
+
+  function tryMove(from, to) {
+    const legal = legalMoves(board, from, turn);
+    if (legal.indexOf(to) === -1) {
+      tone(180, 0.1, 'sawtooth', 0.05);
+      setStatus("Illegal move — snapped back!", 'bad');
+      selected = -1;
+      legalTargets = [];
+      render();
+      return;
+    }
+
+    const moveText = moveToText(board, from, to);
+    const newBoard = applyMove(board, from, to);
+    const opp = turn === 'w' ? 'b' : 'w';
+    const mate = isCheckmate(newBoard, opp);
+
+    selected = -1;
+    legalTargets = [];
+
+    if (mate) {
+      board = newBoard;
+      lastMove = { from, to };
+      solved++;
+      attempted++;
+      solvedThisAttempt = true;
+      tone(420, 0.05);
+      setStatus(`✓ CHECKMATE! ${moveText}#`, 'good');
+      render();
+      showOverlay();
+      setTimeout(() => {
+        hideOverlay();
+        nextPuzzle();
+      }, 2000);
+    } else {
+      attempted++;
+      tone(220, 0.12, 'sawtooth', 0.05);
+      setStatus(`${moveText} — Not mate. Try again!`, 'bad');
+      render();
+    }
+  }
+
+  function findMatingMove() {
+    const p = VALID_PUZZLES[currentPuzzle];
+    if (p && board[p.from]) {
+      const legal = legalMoves(board, p.from, turn);
+      if (legal.indexOf(p.to) !== -1) {
+        const nb = applyMove(board, p.from, p.to);
+        const opp = turn === 'w' ? 'b' : 'w';
+        if (isCheckmate(nb, opp)) return { from: p.from, to: p.to };
+      }
+    }
+    const moves = allLegalMoves(board, turn);
+    const opp = turn === 'w' ? 'b' : 'w';
+    for (const m of moves) {
+      const nb = applyMove(board, m.from, m.to);
+      if (isCheckmate(nb, opp)) return m;
+    }
+    return null;
+  }
+
+  function showOverlay() {
+    const messages = ['+1 DIAMOND', '+1 EMERALD', 'GG EZ', 'NICE!', 'WELL PLAYED', '+1 NETHERITE'];
+    overlaySub.textContent = messages[Math.floor(Math.random()*messages.length)];
+    overlay.classList.add('show');
+    tone(523, 0.1); setTimeout(()=>tone(659, 0.1), 80); setTimeout(()=>tone(784, 0.2), 160);
+  }
+  function hideOverlay() { overlay.classList.remove('show'); }
+
+  function nextPuzzle() {
+    const next = (currentPuzzle + 1) % VALID_PUZZLES.length;
+    loadPuzzle(next);
+  }
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    tone(500, 0.04);
+    nextPuzzle();
+  });
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    tone(400, 0.04);
+    loadPuzzle(currentPuzzle);
+  });
+  document.getElementById('hintBtn').addEventListener('click', () => {
+    tone(700, 0.05);
+    const m = findMatingMove();
+    const p = VALID_PUZZLES[currentPuzzle];
+    if (m) {
+      hintIdx = m.from;
+      setStatus(`Hint: move the piece on ${idxToSq(m.from).toUpperCase()}`);
+      if (p && p.hint) hintDescEl.textContent = p.hint;
+      render();
+    } else {
+      setStatus('No mate found from this position!', 'bad');
+    }
+  });
+  document.getElementById('solBtn').addEventListener('click', () => {
+    tone(300, 0.06);
+    if (solvedThisAttempt) return;
+    const m = findMatingMove();
+    if (m) {
+      const moveText = moveToText(board, m.from, m.to);
+      board = applyMove(board, m.from, m.to);
+      lastMove = { from: m.from, to: m.to };
+      attempted++;
+      solvedThisAttempt = true;
+      setStatus(`Solution: ${moveText}#`, 'good');
+      render();
+      showOverlay();
+      setTimeout(() => { hideOverlay(); nextPuzzle(); }, 2000);
+    }
+  });
+
+  if (VALID_PUZZLES.length > 0) {
+    loadPuzzle(0);
+    console.log('[MinecraftMate] initialized with', VALID_PUZZLES.length, 'puzzles');
+  }
+
+} catch (err) {
+  showError((err && err.message ? err.message : String(err)) + '\n' + (err && err.stack ? err.stack : ''));
+}
+</script>
+</body>
+</html>

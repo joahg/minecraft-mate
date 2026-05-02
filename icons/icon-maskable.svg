@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" shape-rendering="crispEdges">
+  <!-- Full-bleed background for maskable safe zone -->
+  <rect width="512" height="512" fill="#5a3a1a"/>
+
+  <!-- Inner content fits within 80% safe zone (centered) -->
+  <!-- Grass top -->
+  <rect x="80" y="120" width="352" height="48" fill="#6cae3b"/>
+  <rect x="80" y="120" width="352" height="12" fill="#82c44a"/>
+
+  <!-- Mini chessboard pattern (3x3) inside safe zone -->
+  <g>
+    <rect x="80"  y="168" width="117" height="80" fill="#6cae3b"/>
+    <rect x="197" y="168" width="118" height="80" fill="#8b5a2b"/>
+    <rect x="315" y="168" width="117" height="80" fill="#6cae3b"/>
+    <rect x="80"  y="248" width="117" height="80" fill="#8b5a2b"/>
+    <rect x="197" y="248" width="118" height="80" fill="#6cae3b"/>
+    <rect x="315" y="248" width="117" height="80" fill="#8b5a2b"/>
+    <rect x="80"  y="328" width="117" height="64" fill="#6cae3b"/>
+    <rect x="197" y="328" width="118" height="64" fill="#8b5a2b"/>
+    <rect x="315" y="328" width="117" height="64" fill="#6cae3b"/>
+  </g>
+
+  <!-- Pixel King centered -->
+  <g fill="#f8f0d8" stroke="#000" stroke-width="3">
+    <rect x="220" y="180" width="20" height="20"/>
+    <rect x="252" y="180" width="20" height="20"/>
+    <rect x="284" y="180" width="20" height="20"/>
+    <rect x="220" y="200" width="84" height="22"/>
+    <rect x="232" y="222" width="60" height="56"/>
+    <rect x="216" y="278" width="92" height="24"/>
+  </g>
+
+  <!-- Pixel pawn beneath -->
+  <g fill="#1a1a1a" stroke="#ddd" stroke-width="3">
+    <rect x="240" y="320" width="32" height="14"/>
+    <rect x="232" y="334" width="48" height="36"/>
+    <rect x="220" y="370" width="72" height="16"/>
+  </g>
+</svg>
