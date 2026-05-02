@@ -382,17 +382,101 @@
   .footer a { color: #ffd96b; text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
 
-  @media (max-width: 900px) {
+  /* ============================================================
+     Responsive breakpoints
+     - Default (>1100px): full 70px squares, side-by-side layout
+     - Tablet landscape (820–1100px, e.g. iPad Mini landscape 1133px is above this)
+     - Tablet portrait (600–900px, iPad Mini portrait 744px) — STACKED, big board
+     - Phone (<600px): compact stacked layout, smaller squares
+     ============================================================ */
+
+  /* iPad Mini landscape and similar small-tablet landscape (≤1100px wide) */
+  @media (max-width: 1100px) and (min-width: 901px) {
+    body { padding: 14px; }
+    h1 { font-size: 22px; margin-bottom: 12px; }
     .board-container {
-      grid-template-columns: 20px repeat(8, 44px) 20px;
-      grid-template-rows: 20px repeat(8, 44px) 20px;
+      grid-template-columns: 20px repeat(8, 60px) 20px;
+      grid-template-rows: 20px repeat(8, 60px) 20px;
     }
-    .square { width: 44px; height: 44px; }
-    .piece { font-size: 32px; }
-    .square.legal::after { width: 14px; height: 14px; }
-    .square.legal.capture::after { width: 38px; height: 38px; }
-    .info { width: 280px; }
-    .overlay-text { font-size: 32px; }
+    .square { width: 60px; height: 60px; }
+    .piece { font-size: 42px; }
+    .square.legal::after { width: 18px; height: 18px; }
+    .square.legal.capture::after { width: 50px; height: 50px; }
+    .info { width: 300px; }
+  }
+
+  /* Tablet portrait — stack panels vertically with a BIG board.
+     Targets iPad Mini portrait (744px) and similar tablets. */
+  @media (max-width: 900px) and (min-width: 600px) {
+    body { padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
+    h1 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      text-shadow:
+        2px 0 0 #3a3a3a, 0 2px 0 #3a3a3a, 2px 2px 0 #3a3a3a, 4px 4px 0 #1a1a1a;
+    }
+    .main {
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 720px;
+    }
+    .panel { width: 100%; }
+    .panel-inner { padding: 10px; }
+
+    .board-container {
+      grid-template-columns: 22px repeat(8, minmax(0, 1fr)) 22px;
+      grid-template-rows: 22px repeat(8, minmax(0, 1fr)) 22px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      /* Effective square size ≈ (panel width − 22px*2) / 8 ≈ 80px on iPad Mini */
+    }
+    .square { width: auto; height: auto; aspect-ratio: 1 / 1; }
+    .piece { font-size: clamp(38px, 8vw, 60px); }
+    .square.legal::after { width: 26%; height: 26%; }
+    .square.legal.capture::after { width: 78%; height: 78%; }
+    .label { font-size: 11px; }
+
+    .info { width: 100%; }
+    .info h2 { font-size: 16px; }
+    .info .row { font-size: 11px; }
+    .status { font-size: 11px; padding: 12px; }
+    .hint-desc { font-size: 18px; }
+
+    /* 4-column button row in landscape-ish stacked view to use full width */
+    .btns { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .mc-btn { font-size: 11px; padding: 14px 6px; }
+  }
+
+  /* Phone */
+  @media (max-width: 599px) {
+    body { padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+    h1 { font-size: 18px; margin-bottom: 10px; letter-spacing: 1px; }
+    .main { flex-direction: column; gap: 12px; width: 100%; }
+    .panel { width: 100%; }
+    .panel-inner { padding: 8px; }
+
+    .board-container {
+      grid-template-columns: 18px repeat(8, minmax(0, 1fr)) 18px;
+      grid-template-rows: 18px repeat(8, minmax(0, 1fr)) 18px;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+    }
+    .square { width: auto; height: auto; aspect-ratio: 1 / 1; }
+    .piece { font-size: clamp(24px, 9vw, 40px); }
+    .square.legal::after { width: 26%; height: 26%; }
+    .square.legal.capture::after { width: 78%; height: 78%; }
+    .label { font-size: 9px; }
+
+    .info { width: 100%; }
+    .info h2 { font-size: 12px; }
+    .info .row { font-size: 9px; }
+    .status { font-size: 9px; padding: 8px; }
+    .hint-desc { font-size: 15px; }
+    .btns { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .mc-btn { font-size: 10px; padding: 12px 4px; }
+    .overlay-text { font-size: 28px; }
+    .overlay-sub { font-size: 11px; }
   }
 </style>
 </head>
